@@ -55,7 +55,7 @@
 </template>
 
 <script>
-
+/* eslint-disable */
 import axios from 'axios'
 export default {
   data () {
@@ -101,8 +101,12 @@ export default {
         // console.log('可以正常登录了');
         // axios.post(url,data,config)
         axios.post('http://localhost:8888/api/private/v1/login', this.loginForm).then(res => {
-          // console.log(res);
+          console.log(res);
           if (res.data.meta.status === 200) {
+
+            // 0. 把 token 保存到本地
+            localStorage.setItem('token', res.data.data.token)
+
             // 1. 提示成功
             this.$message({
               message: '登录成功',
