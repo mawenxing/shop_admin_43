@@ -80,29 +80,45 @@ export default {
   // 方法
   methods: {
     // 加载用户数据列表
-    getUsersData (pagenum = 1, query = '') {
-      // axios.get(url,config) => params : {} , headers : {}
-      this.$axios
-        .get('users', {
-          params: {
-            query,
-            pagenum, // 当前页
-            pagesize: 2 // 每一页显示2个
-          }
-          // headers: {
-          //   Authorization: localStorage.getItem('token')
-          // }
-        })
-        .then(res => {
-          console.log(res)
+    async getUsersData (pagenum = 1, query = '') {
+      let config = {
+        params: {
+          query,
+          pagenum, // 当前页
+          pagesize: 2 // 每一页显示2个
+        }
+      }
+      let res = await this.$axios.get('users', config)
 
-          // 保存用户列表数据
-          this.usersData = res.data.data.users
-          // 保存总个数
-          this.total = res.data.data.total
-          // 保存当前页
-          this.pagenum = res.data.data.pagenum
-        })
+      // 保存用户列表数据
+      this.usersData = res.data.data.users
+      // 保存总个数
+      this.total = res.data.data.total
+      // 保存当前页
+      this.pagenum = res.data.data.pagenum
+
+      // axios.get(url,config) => params : {} , headers : {}
+      // this.$axios
+      //   .get('users', {
+      //     params: {
+      //       query,
+      //       pagenum, // 当前页
+      //       pagesize: 2 // 每一页显示2个
+      //     }
+      //     // headers: {
+      //     //   Authorization: localStorage.getItem('token')
+      //     // }
+      //   })
+      //   .then(res => {
+      //     console.log(res)
+
+      // // 保存用户列表数据
+      // this.usersData = res.data.data.users
+      // // 保存总个数
+      // this.total = res.data.data.total
+      // // 保存当前页
+      // this.pagenum = res.data.data.pagenum
+      //   })
     },
     // 点击分页
     currentPageChange (curPage) {
@@ -123,30 +139,47 @@ export default {
       this.dialogAddUserVisible = true
     },
     // 添加用户
-    addUser () {
+    async addUser () {
+      let res = await this.$axios.post('users', this.addUserForm)
+
+      if (res.data.meta.status === 201) {
+        // 1. 隐藏对话框
+        this.dialogAddUserVisible = false
+
+        // 2. 提示
+        this.$message({
+          message: '添加用户成功',
+          type: 'success',
+          duration: 800
+        })
+
+        // 3. 刷新一下
+        this.getUsersData()
+      }
+
       // axios.post(url,data,config) params: headers
-      this.$axios
-        .post('users', this.addUserForm, {
-          // headers: {
-          //   Authorization: localStorage.getItem('token')
-          // }
-        })
-        .then(res => {
-          if (res.data.meta.status === 201) {
-            // 1. 隐藏对话框
-            this.dialogAddUserVisible = false
+      // this.$axios
+      //   .post('users', this.addUserForm, {
+      //     // headers: {
+      //     //   Authorization: localStorage.getItem('token')
+      //     // }
+      //   })
+      //   .then(res => {
+      // if (res.data.meta.status === 201) {
+      //   // 1. 隐藏对话框
+      //   this.dialogAddUserVisible = false
 
-            // 2. 提示
-            this.$message({
-              message: '添加用户成功',
-              type: 'success',
-              duration: 800
-            })
+      //   // 2. 提示
+      //   this.$message({
+      //     message: '添加用户成功',
+      //     type: 'success',
+      //     duration: 800
+      //   })
 
-            // 3. 刷新一下
-            this.getUsersData()
-          }
-        })
+      //   // 3. 刷新一下
+      //   this.getUsersData()
+      // }
+      //   })
     },
     // 监听对话框关闭
     dialogClosed () {
@@ -154,53 +187,76 @@ export default {
       this.$refs.addUserRef.resetFields()
     },
     // 删除用户
-    delUser (id) {
-      console.log(id)
+    async delUser (id) {
+      let res = await this.$axios.delete(`users/${id}`)
+
+      if (res.data.meta.status === 200) {
+        // 1. 提示
+        this.$message({
+          message: '删除用户成功',
+          type: 'success',
+          duration: 800
+        })
+        // 2. 刷新一下
+        this.getUsersData()
+      }
 
       // axios.delete(url,config)
-      this.$axios
-        .delete(`users/${id}`, {
-          // headers: {
-          //   Authorization: localStorage.getItem('token')
-          // }
-        })
-        .then(res => {
-          // console.log(res)
-          if (res.data.meta.status === 200) {
-            // 1. 提示
-            this.$message({
-              message: '删除用户成功',
-              type: 'success',
-              duration: 800
-            })
-            // 2. 刷新一下
-            this.getUsersData()
-          }
-        })
+      // this.$axios
+      //   .delete(`users/${id}`, {
+      //     // headers: {
+      //     //   Authorization: localStorage.getItem('token')
+      //     // }
+      //   })
+      //   .then(res => {
+      //     // console.log(res)
+      // if (res.data.meta.status === 200) {
+      //   // 1. 提示
+      //   this.$message({
+      //     message: '删除用户成功',
+      //     type: 'success',
+      //     duration: 800
+      //   })
+      //   // 2. 刷新一下
+      //   this.getUsersData()
+      // }
+      //   })
     },
     // 状态改变
-    stateChange (row) {
+    async stateChange (row) {
       // 1. 通过解构的方法 拿到id 和 mg_state
       const { id, mg_state: mgState } = row
+
+      // 2.
+      let res = await this.$axios.put(`users/${id}/state/${mgState}`)
+
+      if (res.data.meta.status === 200) {
+        // 提示
+        this.$message({
+          message: '状态修改成功',
+          type: 'success',
+          duration: 800
+        })
+      }
       // console.log('状态改变了')
       // axios.put(url,data,config)
-      this.$axios
-        .put(`users/${id}/state/${mgState}`, null, {
-          // headers: {
-          //   Authorization: localStorage.getItem('token')
-          // }
-        })
-        .then(res => {
-          // console.log(res)
-          if (res.data.meta.status === 200) {
-            // 提示
-            this.$message({
-              message: '状态修改成功',
-              type: 'success',
-              duration: 800
-            })
-          }
-        })
+      // this.$axios
+      //   .put(`users/${id}/state/${mgState}`, null, {
+      //     // headers: {
+      //     //   Authorization: localStorage.getItem('token')
+      //     // }
+      //   })
+      //   .then(res => {
+      //     // console.log(res)
+      // if (res.data.meta.status === 200) {
+      //   // 提示
+      //   this.$message({
+      //     message: '状态修改成功',
+      //     type: 'success',
+      //     duration: 800
+      //   })
+      // }
+      //   })
     },
     // 展示编辑用户对话框
     showEditUserDialog (row) {

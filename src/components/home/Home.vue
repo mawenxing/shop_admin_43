@@ -86,16 +86,23 @@
 /* eslint-disable */
 export default {
   methods: {
-    logout () {
+    // 退出 功能
+    async logout () {
 
-      this.$confirm('此操作将退出账户, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        // 点击确定 => 走then
-        // console.log('点击确定 =>  then');
 
+      /**
+       * 通过处理是否有异常,来判断你点击的是哪个
+       */
+
+      try {
+
+        let res = await this.$confirm('此操作将退出账户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+
+        console.log('点击了确定');
         //0. 删除本地的token
         localStorage.removeItem('token')
 
@@ -109,18 +116,87 @@ export default {
         //2. 返回
         this.$router.push('/login')
 
+      } catch (error) {
 
-      }).catch(() => {
-        // 点击的取消 => 走catch
-        console.log('点击取消 => catch');
+        console.log('点击了取消');
+
         this.$message({
           message: '取消退出',
           type: 'info',
           duration: 800
         })
 
+      }
 
-      });
+
+      // try {
+
+      // await this.$confirm('此操作将退出账户, 是否继续?', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // })
+
+      //   console.log('点击确定');
+      // //0. 删除本地的token
+      // localStorage.removeItem('token')
+
+      // //1. 提示
+      // this.$message({
+      //   message: '退出成功',
+      //   type: 'success',
+      //   duration: 800
+      // })
+
+      // //2. 返回
+      // this.$router.push('/login')
+
+      // } catch (error) {
+
+      //   console.log('点击了取消');
+      // this.$message({
+      //   message: '取消退出',
+      //   type: 'info',
+      //   duration: 800
+      // })
+
+      // }
+
+
+
+      // this.$confirm('此操作将退出账户, 是否继续?', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // }).then(() => {
+      //   // 点击确定 => 走then
+      //   // console.log('点击确定 =>  then');
+
+      // //0. 删除本地的token
+      // localStorage.removeItem('token')
+
+      // //1. 提示
+      // this.$message({
+      //   message: '退出成功',
+      //   type: 'success',
+      //   duration: 800
+      // })
+
+      // //2. 返回
+      // this.$router.push('/login')
+
+
+      // }).catch(() => {
+      //   // 点击的取消 => 走catch
+      //   console.log('点击取消 => catch');
+      // this.$message({
+      //   message: '取消退出',
+      //   type: 'info',
+      //   duration: 800
+      // })
+
+
+      // });
 
     },
     // 开

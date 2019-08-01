@@ -56,7 +56,7 @@
 
 <script>
 /* eslint-disable */
-import axios from 'axios'
+// import axios from 'axios'
 export default {
   data () {
     return {
@@ -92,40 +92,68 @@ export default {
 
       // 校验
       // valid 布尔 (true/false)
-      this.$refs.loginForm.validate((valid) => {
+      // async function (valid){}
+      this.$refs.loginForm.validate(async (valid) => {
 
         //异常截流
         if (!valid) {
           return false
         }
+
+        // 登录
+        let res = await this.$axios.post('http://localhost:8888/api/private/v1/login', this.loginForm)
+
+        if (res.data.meta.status === 200) {
+
+          // 0. 把 token 保存到本地
+          localStorage.setItem('token', res.data.data.token)
+
+          // 1. 提示成功
+          this.$message({
+            message: '登录成功',
+            type: 'success',
+            duration: 800
+          })
+          //2. 跳转 home 页
+          this.$router.push('/home')
+
+        } else {
+          // console.log('登录失败');
+          this.$message({
+            message: '登录失败',
+            type: 'error',
+            duration: 800
+          })
+        }
+
         // console.log('可以正常登录了');
         // axios.post(url,data,config)
-        axios.post('http://localhost:8888/api/private/v1/login', this.loginForm).then(res => {
-          console.log(res);
-          if (res.data.meta.status === 200) {
+        // this.$axios.post('http://localhost:8888/api/private/v1/login', this.loginForm).then(res => {
+        //   console.log(res);
+        // if (res.data.meta.status === 200) {
 
-            // 0. 把 token 保存到本地
-            localStorage.setItem('token', res.data.data.token)
+        //   // 0. 把 token 保存到本地
+        //   localStorage.setItem('token', res.data.data.token)
 
-            // 1. 提示成功
-            this.$message({
-              message: '登录成功',
-              type: 'success',
-              duration: 800
-            })
-            //2. 跳转 home 页
-            this.$router.push('/home')
+        //   // 1. 提示成功
+        //   this.$message({
+        //     message: '登录成功',
+        //     type: 'success',
+        //     duration: 800
+        //   })
+        //   //2. 跳转 home 页
+        //   this.$router.push('/home')
 
-          } else {
-            // console.log('登录失败');
-            this.$message({
-              message: '登录失败',
-              type: 'error',
-              duration: 800
-            })
-          }
+        // } else {
+        //   // console.log('登录失败');
+        //   this.$message({
+        //     message: '登录失败',
+        //     type: 'error',
+        //     duration: 800
+        //   })
+        // }
 
-        })
+        // })
 
       })
     },
